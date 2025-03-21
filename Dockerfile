@@ -1,17 +1,24 @@
-FROM python:3.10-slim-buster
+# Use a Python slim image as the base image
+FROM python:3.9-slim
 
-COPY analytics/ /app
-
+# Set the working directory inside the container
 WORKDIR /app
 
-RUN apt update
+# Copy the requirements.txt file into the container
+COPY analytics/requirements.txt /app/
 
-RUN apt install build-essential libpq-dev -y
+# Install dependencies
+RUN apt-get update -y && apt install -y build-essential libpq-dev && \
+    pip install --upgrade pip setuptools wheel && \
+    pip install -r requirements.txt
 
-RUN pip install --upgrade pip setuptools wheel
+# Copy the rest of the application code into the container
+COPY analytics/app.py /app/
+COPY analytics/config.py /app/
 
-RUN pip install -r requirements.txt
 
+# Expose the port your app runs on (e.g., port 5152 for Flask apps)
 EXPOSE 5152
 
-CMD ["python", "app.py"]
+# Run the application (adjust this command if your application starts differently)
+CMD ["python3", "app.py"]
